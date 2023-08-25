@@ -5,7 +5,15 @@ module.exports.createCard = (req, res) => {
 
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send(card))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name} ${err.message}` }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Передан некорректный _id пользователя' });
+      }
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' });
+      }
+      return res.status(500).send({ message: `Произошла ошибка ${err.name} ${err.message}` });
+    });
 };
 
 module.exports.findCards = (req, res) => {
@@ -16,8 +24,18 @@ module.exports.findCards = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then(() => res.send({ message: 'Карточка удалена' }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name} ${err.message}` }));
+    .then(() => {
+      if (req.params.cardId === null) {
+        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+      }
+      return res.send({ message: 'Карточка удалена' });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Передан некорректный _id карточки' });
+      }
+      return res.status(500).send({ message: `Произошла ошибка ${err.name} ${err.message}` });
+    });
 };
 
 module.exports.likeCard = (req, res) => {
@@ -26,8 +44,18 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((likes) => res.send(likes))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name} ${err.message}` }));
+    .then((likes) => {
+      if (likes === null) {
+        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+      }
+      return res.send(likes);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Передан некорректный _id карточки' });
+      }
+      return res.status(500).send({ message: `Произошла ошибка ${err.name} ${err.message}` });
+    });
 };
 
 module.exports.dislikeCard = (req, res) => {
@@ -36,6 +64,16 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .then((likes) => res.send(likes))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name} ${err.message}` }));
+    .then((likes) => {
+      if (likes === null) {
+        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+      }
+      return res.send(likes);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Передан некорректный _id карточки' });
+      }
+      return res.status(500).send({ message: `Произошла ошибка ${err.name} ${err.message}` });
+    });
 };
