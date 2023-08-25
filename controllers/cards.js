@@ -23,12 +23,15 @@ module.exports.findCards = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .then(() => {
-      if (req.params.cardId === null) {
+  const { cardId } = req.params;
+
+  Card.findById(cardId)
+    .then((card) => {
+      if (card === null) {
         return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       }
-      return res.send({ message: 'Карточка удалена' });
+      return Card.findByIdAndRemove(cardId)
+        .then(() => res.send({ message: 'Карточка удалена' }));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
