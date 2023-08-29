@@ -4,7 +4,7 @@ module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.send(card))
+    .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Передан некорректный _id пользователя' });
@@ -26,14 +26,15 @@ module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
 
   Card.findById(cardId)
-    .then((card) => {
-      if (card === null) {
-        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
-      }
-      return Card.findByIdAndRemove(cardId)
+    .orFail(new Error('NotFoundError'))
+    .then(() => {
+      Card.findByIdAndRemove(cardId)
         .then(() => res.send({ message: 'Карточка удалена' }));
     })
     .catch((err) => {
+      if (err.name === 'NotFoundError') {
+        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+      }
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Передан некорректный _id карточки' });
       }
@@ -47,13 +48,14 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
+    .orFail(new Error('NotFoundError'))
     .then((likes) => {
-      if (likes === null) {
-        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
-      }
-      return res.send(likes);
+      res.send(likes);
     })
     .catch((err) => {
+      if (err.name === 'NotFoundError') {
+        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+      }
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Передан некорректный _id карточки' });
       }
@@ -67,13 +69,14 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
+    .orFail(new Error('NotFoundError'))
     .then((likes) => {
-      if (likes === null) {
-        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
-      }
-      return res.send(likes);
+      res.send(likes);
     })
     .catch((err) => {
+      if (err.name === 'NotFoundError') {
+        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+      }
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Передан некорректный _id карточки' });
       }
