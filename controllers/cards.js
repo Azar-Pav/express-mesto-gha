@@ -32,7 +32,7 @@ module.exports.deleteCard = (req, res) => {
         .then(() => res.send({ message: 'Карточка удалена' }));
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
+      if (err.message === 'NotFoundError') {
         return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       }
       if (err.name === 'CastError') {
@@ -53,7 +53,7 @@ module.exports.likeCard = (req, res) => {
       res.send(likes);
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
+      if (err.message === 'NotFoundError') {
         return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       }
       if (err.name === 'CastError') {
@@ -74,7 +74,7 @@ module.exports.dislikeCard = (req, res) => {
       res.send(likes);
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
+      if (err.message === 'NotFoundError') {
         return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       }
       if (err.name === 'CastError') {

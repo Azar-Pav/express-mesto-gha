@@ -20,7 +20,7 @@ module.exports.findUser = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
+      if (err.message === 'NotFoundError') {
         return res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
       }
       if (err.name === 'CastError') {
@@ -45,7 +45,7 @@ module.exports.changeUserAvatar = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
+      if (err.message === 'NotFoundError') {
         return res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
       }
       if (err.name === 'CastError') {
@@ -67,7 +67,7 @@ module.exports.changeUserProfile = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
+      if (err.message === 'NotFoundError') {
         return res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
       }
       if (err.name === 'CastError') {
