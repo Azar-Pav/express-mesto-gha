@@ -1,81 +1,74 @@
 const User = require('../models/user');
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { email, password } = req.body;
 
   User.create({ email, password })
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: `Переданы некорректные данные при создании пользователя. ${err.message}` });
+        return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
       }
-      return res.status(500).send({ message: `Произошла ошибка ${err.name} ${err.message}` });
+      return next(err);
     });
 };
 
-module.exports.findUser = (req, res) => {
+module.exports.findUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(new Error('NotFoundError'))
+    .orFail(new NotFoundError('Пользователь по указанному _id не найден'))
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.message === 'NotFoundError') {
-        return res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
-      }
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Передан некорректный _id пользователя' });
+        return next(new BadRequestError('Передан некорректный _id пользователя'));
       }
-      return res.status(500).send({ message: `Произошла ошибка ${err.name} ${err.message}` });
+      return next(err);
     });
 };
 
-module.exports.findUsers = (req, res) => {
+module.exports.findUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name} ${err.message}` }));
+    .catch(next);
 };
 
-module.exports.changeUserAvatar = (req, res) => {
+module.exports.changeUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail(new Error('NotFoundError'))
+    .orFail(new NotFoundError('Пользователь по указанному _id не найден'))
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.message === 'NotFoundError') {
-        return res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
-      }
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Передан некорректный _id пользователя' });
+        return next(new BadRequestError('Передан некорректный _id пользователя'));
       }
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+        return next(new BadRequestError('Переданы некорректные данные при обновлении аватара'));
       }
-      return res.status(500).send({ message: `Произошла ошибка ${err.name} ${err.message}` });
+      return next(err);
     });
 };
 
-module.exports.changeUserProfile = (req, res) => {
+module.exports.changeUserProfile = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail(new Error('NotFoundError'))
+    .orFail(new NotFoundError('Пользователь по указанному _id не найден'))
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.message === 'NotFoundError') {
-        return res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
-      }
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Передан некорректный _id пользователя' });
+        return next(new BadRequestError('Передан некорректный _id пользователя'));
       }
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+        return next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
       }
-      return res.status(500).send({ message: `Произошла ошибка ${err.name} ${err.message}` });
+      return next(err);
     });
 };
