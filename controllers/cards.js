@@ -1,6 +1,8 @@
 const Card = require('../models/card');
+
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
@@ -29,9 +31,13 @@ module.exports.deleteCard = (req, res, next) => {
 
   Card.findById(cardId)
     .orFail(new NotFoundError('Передан несуществующий _id карточки'))
-    .then(() => {
-      Card.findByIdAndRemove(cardId)
-        .then(() => res.send({ message: 'Карточка удалена' }));
+    .then((card) => {
+      if (card.owner.equals(req.user._id)) {
+        return Card.findByIdAndRemove(cardId)
+          .then(() => res.send({ message: 'Карточка удалена' }))
+          .catch(next);
+      }
+      throw new ForbiddenError('У Вас нет прав для удаления данной карточки');
     })
     .catch((err) => {
       if (err.name === 'CastError') {
