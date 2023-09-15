@@ -1,7 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
+
 const router = require('./routes/index');
+const errorsHandler = require('./middlewares/errorsHandler');
 
 const {
   PORT = 3000,
@@ -31,18 +34,9 @@ app.use((req, res, next) => {
 
 app.use(router);
 
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
+app.use(errors());
 
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-  return next();
-});
+app.use(errorsHandler);
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
