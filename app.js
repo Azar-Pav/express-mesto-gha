@@ -24,14 +24,6 @@ app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64e64769be5611f239841275',
-  };
-
-  next();
-});
-
 app.use(router);
 
 app.use(errors());

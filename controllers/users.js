@@ -61,6 +61,12 @@ module.exports.findUser = (req, res, next) => {
     });
 };
 
+module.exports.getUserInfo = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => res.send(user))
+    .catch(next);
+};
+
 module.exports.findUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
