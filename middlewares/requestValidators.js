@@ -1,6 +1,6 @@
 const { celebrate, Joi } = require('celebrate');
 
-const urlRegex = require('../utils/constant');
+const { urlRegex } = require('../utils/constant');
 
 module.exports.checkLogin = celebrate({
   body: Joi.object().keys({
