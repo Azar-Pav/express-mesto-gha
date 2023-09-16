@@ -18,9 +18,9 @@ router.post('/signin', checkLogin, login);
 router.post('/signup', checkCreateUser, createUser);
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
-router.use(auth);
 router.use('*', (req, res, next) => {
   next(new NotFoundError('Неправильный путь'));
 });
+router.use(auth);
 
 module.exports = router;
