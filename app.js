@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 
 const router = require('./routes/index');
 const errorsHandler = require('./middlewares/errorsHandler');
@@ -25,6 +26,7 @@ app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(helmet());
+app.use(cookieParser());
 
 app.use(router);
 

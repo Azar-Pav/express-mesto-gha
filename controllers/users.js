@@ -7,15 +7,29 @@ const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 
 module.exports.createUser = (req, res, next) => {
-  const { email, password } = req.body;
+  const {
+    email,
+    password,
+    name,
+    about,
+    avatar,
+  } = req.body;
 
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
+      name,
+      about,
+      avatar,
       email,
       password: hash,
     }))
-    .then((user) => {
-      res.status(201).send(user);
+    .then(() => {
+      res.status(201).send({
+        name,
+        about,
+        avatar,
+        email,
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
