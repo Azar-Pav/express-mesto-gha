@@ -22,5 +22,6 @@ router.use('/cards', auth, cardRouter);
 router.use('*', (req, res, next) => {
   next(new NotFoundError('Неправильный путь'));
 });
+router.use(auth);
 
 module.exports = router;
